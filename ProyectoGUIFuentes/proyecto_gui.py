@@ -2,12 +2,25 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import subprocess
 import os
+import sys
 
 class MiniZincInterface:
     def __init__(self, root):
         self.root = root
-        self.root.title("Conversor MPL a DZN y Ejecutor MiniZinc")
+        self.root.title("Proyecto de optimización discreta en MiniZinc (MinPol)")
         
+        if not self.verificar_minizinc():
+            messagebox.showerror("Error", 
+                "MiniZinc no está instalado o no está en el PATH del sistema.\n\n"
+                "Por favor:\n"
+                "1. Descarga MiniZinc desde https://www.minizinc.org/\n"
+                "2. Instálalo en tu sistema\n"
+                "3. Asegúrate de que está en el PATH del sistema\n"
+                "4. Vuelve a ejecutar esta aplicación")
+            sys.exit(1)
+            
+        self.parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            
         self.mpl_path = tk.StringVar()
         
         self.main_frame = ttk.Frame(self.root, padding="10")
@@ -18,6 +31,16 @@ class MiniZincInterface:
         self.resultado_text = tk.Text(self.main_frame, height=10, width=50)
         self.resultado_text.grid(row=3, column=0, columnspan=2, pady=10)
 
+    def verificar_minizinc(self):
+        """Verifica si MiniZinc está instalado y disponible en el sistema"""
+        try:
+            subprocess.run(["minizinc", "--version"], 
+                        capture_output=True, 
+                        text=True)
+            return True
+        except FileNotFoundError:
+            return False
+        
     def crear_widgets(self):
         file_frame = ttk.LabelFrame(self.main_frame, text="Configuración de archivos", padding="5")
         file_frame.grid(row=0, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=5)
@@ -28,7 +51,7 @@ class MiniZincInterface:
         
         # Botón para generar archivo y ejecutar modelo
         ttk.Button(self.main_frame, 
-                text="Convertir MPL, Generar DZN y Ejecutar", 
+                text="Convertir y Ejecutar", 
                 command=self.procesar_archivos).grid(row=2, column=0, 
                 columnspan=2, pady=20)
 
@@ -81,7 +104,7 @@ class MiniZincInterface:
     def generar_dzn(self, datos):
         """Genera el archivo DZN en el mismo directorio que el script"""
         try:
-            output_path = os.path.join(os.path.dirname(__file__), "DatosProyecto.dzn")
+            output_path = os.path.join(self.parent_dir, "DatosProyecto.dzn")
             with open(output_path, 'w') as f:
                 f.write(f"n = {datos['n']};\n")
                 f.write(f"m = {datos['m']};\n")
@@ -109,9 +132,9 @@ class MiniZincInterface:
 
     def ejecutar_modelo(self, dzn_path):
         try:
-            modelo_path = os.path.join(os.path.dirname(__file__), "Proyecto.mzn")
+            modelo_path = os.path.join(self.parent_dir, "Proyecto.mzn")
             if not os.path.exists(modelo_path):
-                raise FileNotFoundError(f"No se encontró el archivo modelo.mzn en el directorio actual")
+                raise FileNotFoundError(f"No se encontró el archivo modelo.mzn en el directorio {self.parent_dir}")
             
             resultado = subprocess.run(
                 ["minizinc", modelo_path, dzn_path],
