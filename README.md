@@ -1,4 +1,4 @@
-## Proyecto de optimización discreta en MiniZinc
+## Proyecto de optimización discreta en MiniZinc (MinPol)
 
 ### Archivos entregados
 - El archivo proyecto_gui.py en el directorio ProyectoGUIFuentes con la interfaz gráfica
