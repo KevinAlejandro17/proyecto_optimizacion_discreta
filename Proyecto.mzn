@@ -41,11 +41,29 @@ var float: polarization = sum(i in 1..m)(final_dist[i] * abs(vi[i] - median));
 
 solve minimize polarization;
 
+
+var float: initial_polarization = sum(i in 1..m)(pi[i] * abs(vi[i] - median));
+
+/*
 output [
     "Polarización mínima alcanzada: ", show(polarization), "\n",
     "Distribución final: ", show(final_dist), "\n",
     "Mediana: ", show(median), "\n",
     "Movimientos:\n", show(x), "\n",
+    "Costo total: ", show(sum(i,j in 1..m where i != j)(
+        ci[i,j] * x[i,j] * (1 + pi[i]/n) + 
+        if pi[j] = 0 then cei[j] * x[i,j] else 0 endif
+    ))
+];
+*/
+
+output [
+    "Polarización inicial: ", show(initial_polarization), "\n",
+    "Polarización mínima alcanzada: ", show(polarization), "\n",
+    "Distribución inicial: ", show(pi), "\n",
+    "Distribución final: ", show(final_dist), "\n",
+    "Mediana: ", show(median), "\n",
+    "Número total de movimientos: ", show(sum(i,j in 1..m where i != j)(x[i,j])), "\n",
     "Costo total: ", show(sum(i,j in 1..m where i != j)(
         ci[i,j] * x[i,j] * (1 + pi[i]/n) + 
         if pi[j] = 0 then cei[j] * x[i,j] else 0 endif

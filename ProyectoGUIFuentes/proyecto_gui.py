@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import subprocess
@@ -28,7 +29,7 @@ class MiniZincInterface:
         
         self.crear_widgets()
         
-        self.resultado_text = tk.Text(self.main_frame, height=10, width=50)
+        self.resultado_text = tk.Text(self.main_frame, height=10, width=80)
         self.resultado_text.grid(row=3, column=0, columnspan=2, pady=10)
 
     def verificar_minizinc(self):
@@ -139,12 +140,23 @@ class MiniZincInterface:
             resultado = subprocess.run(
                 ["minizinc", modelo_path, dzn_path],
                 capture_output=True,
-                text=True
+                text=True,
+                encoding='utf-8'
             )
             
             self.resultado_text.delete(1.0, tk.END)
+            
             if resultado.returncode == 0:
-                self.resultado_text.insert(tk.END, resultado.stdout)
+                output = resultado.stdout
+                
+                lines = output.split('\n')
+                formatted_output = ""
+                for line in lines:
+                    line = line.replace('"', '').strip()
+                    if line:
+                        formatted_output += line + "\n"
+                
+                self.resultado_text.insert(tk.END, formatted_output)
             else:
                 self.resultado_text.insert(tk.END, f"Error: {resultado.stderr}")
                 
