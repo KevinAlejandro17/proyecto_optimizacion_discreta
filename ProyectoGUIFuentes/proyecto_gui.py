@@ -47,7 +47,7 @@ class MiniZincInterface:
         file_frame.grid(row=0, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=5)
         
         ttk.Label(file_frame, text="Archivo de datos (.mpl):").grid(row=0, column=0, sticky=tk.W)
-        ttk.Entry(file_frame, textvariable=self.mpl_path, width=40).grid(row=0, column=1, padx=5)
+        ttk.Entry(file_frame, textvariable=self.mpl_path, width=80).grid(row=0, column=1, padx=5)
         ttk.Button(file_frame, text="Buscar", command=self.buscar_mpl).grid(row=0, column=2, padx=5)
         
         # Botón para generar archivo y ejecutar modelo
@@ -138,7 +138,7 @@ class MiniZincInterface:
                 raise FileNotFoundError(f"No se encontró el archivo modelo.mzn en el directorio {self.parent_dir}")
             
             resultado = subprocess.run(
-                ["minizinc", modelo_path, dzn_path],
+                ["minizinc", "--solver", "Gecode", "--time-limit", "30000", modelo_path, dzn_path],
                 capture_output=True,
                 text=True,
                 encoding='utf-8'
